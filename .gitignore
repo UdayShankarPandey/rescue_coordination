@@ -1,6 +1,48 @@
-# Ignore environment configuration files
+# ============================================================
+# Rescue Coordination System - .gitignore
+# ============================================================
+
+# ---- Environment & Secrets ----
 .env
 **/.env
 
-# Local server environment, binaries, and database data
+# ---- Local Runtime / Server Binaries ----
 server-env/
+php/
+mariadb/
+mariadb_data/
+
+# ---- OS Files ----
+.DS_Store
+Thumbs.db
+Desktop.ini
+*.swp
+*.swo
+*~
+
+# ---- IDE / Editor Files ----
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.project
+.settings/
+
+# ---- Logs ----
+*.log
+logs/
+
+# ---- Dependencies ----
+vendor/
+node_modules/
+
+# ---- Build / Cache ----
+*.cache
+*.tmp
+tmp/
+
+# ---- Docker (for future use) ----
+# docker-compose.override.yml
+
+# ---- Kubernetes (for future use) ----
+# *.kubeconfig
