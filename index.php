@@ -55,7 +55,6 @@ include 'includes/header.php';
 ?>
 
 <!-- Hero Section -->
- <h2>CI/CD Pipeline Working Successfully</h2>
 <section class="bg-indigo-700 text-white py-16">
     <div class="container mx-auto px-4">
         <div class="flex flex-col md:flex-row items-center">
