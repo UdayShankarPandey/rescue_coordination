@@ -5,7 +5,7 @@ pipeline {
 
         stage('Clone Repository') {
             steps {
-                git 'https://github.com/UdayShankarPandey/rescue_coordination.git'
+                git branch: 'main', url: 'https://github.com/UdayShankarPandey/rescue_coordination.git'
             }
         }
 
