@@ -12,9 +12,13 @@
  */
 function registerAgency($conn, $data) {
     try {
+        // Decode HTML entities that sanitize() may have added
+        $rawEmail = html_entity_decode($data['email'], ENT_QUOTES, 'UTF-8');
+        $rawEmail = trim($rawEmail);
+        
         // Check if email already exists
-        $stmt = $conn->prepare("SELECT id FROM agencies WHERE email = :email");
-        $stmt->execute(['email' => $data['email']]);
+        $stmt = $conn->prepare("SELECT id FROM agencies WHERE email = :email OR email = :encoded_email");
+        $stmt->execute(['email' => $rawEmail, 'encoded_email' => $data['email']]);
         
         if ($stmt->rowCount() > 0) {
             return [
@@ -29,8 +33,8 @@ function registerAgency($conn, $data) {
         // Generate verification code
         $verificationCode = generateRandomString(64);
         
-        // In development mode, auto-verify accounts. In production, require email verification.
-        $autoVerify = ENVIRONMENT === 'development' ? 1 : 0;
+        // Auto-verify accounts (no email verification needed)
+        $autoVerify = 1;
         
         // Insert the new agency
         $stmt = $conn->prepare("
@@ -47,7 +51,7 @@ function registerAgency($conn, $data) {
         
         $stmt->execute([
             'name' => $data['name'],
-            'email' => $data['email'],
+            'email' => $rawEmail,
             'password' => $hashedPassword,
             'phone' => $data['phone'],
             'agency_type' => $data['agency_type'],
@@ -133,13 +137,20 @@ function verifyAgency($conn, $code) {
  */
 function loginAgency($conn, $email, $password) {
     try {
+        // Strip any HTML encoding that sanitize() may have added — store/query raw email
+        $rawEmail = html_entity_decode($email, ENT_QUOTES, 'UTF-8');
+        $rawEmail = trim($rawEmail);
+        
         $stmt = $conn->prepare("
-            SELECT id, name, password, verified 
+            SELECT id, name, email, password, verified 
             FROM agencies 
-            WHERE email = :email
+            WHERE email = :email OR email = :encoded_email
         ");
         
-        $stmt->execute(['email' => $email]);
+        $stmt->execute([
+            'email' => $rawEmail,
+            'encoded_email' => $email
+        ]);
         $agency = $stmt->fetch();
         
         if (!$agency) {
@@ -156,12 +167,10 @@ function loginAgency($conn, $email, $password) {
             ];
         }
         
-        // In production, require email verification. In development, allow unverified accounts.
-        if (!$agency['verified'] && ENVIRONMENT === 'production') {
-            return [
-                'status' => 'error',
-                'message' => 'Your account is not verified. Please check your email.'
-            ];
+        // Auto-verify the account if not already verified
+        if (!$agency['verified']) {
+            $updateStmt = $conn->prepare("UPDATE agencies SET verified = TRUE WHERE id = :id");
+            $updateStmt->execute(['id' => $agency['id']]);
         }
         
         // Start session if not already started

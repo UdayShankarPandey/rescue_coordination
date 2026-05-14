@@ -20,7 +20,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $error = 'Database connection error. Please try again later.';
     } else {
         // Get form data
-        $email = sanitize($_POST['email'] ?? '');
+        $email = trim($_POST['email'] ?? '');
         $password = $_POST['password'] ?? '';
         
         // Validate form data

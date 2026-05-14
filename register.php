@@ -32,7 +32,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         // Get form data
         $formData = [
             'name' => sanitize($_POST['name'] ?? ''),
-            'email' => sanitize($_POST['email'] ?? ''),
+            'email' => trim($_POST['email'] ?? ''),
             'password' => $_POST['password'] ?? '',
             'confirm_password' => $_POST['confirm_password'] ?? '',
             'phone' => sanitize($_POST['phone'] ?? ''),
